@@ -172,7 +172,7 @@ namespace PlaythroughLogs
 
         public static void SaveEventToDay()
         {
-            var name = EventLogger.upcomingEvent.ToString().Replace("ngov3.", "");
+            var name = EventLogger.upcomingEvent?.ToString().Replace("ngov3.", "");
             switch (SingletonMonoBehaviour<StatusManager>.Instance.GetStatus(StatusType.DayPart))
             {
                 case 0:
@@ -180,7 +180,7 @@ namespace PlaythroughLogs
                         return;
                     currentDay.DayEventName = name;
                     break;
-                case 2:
+                default:
                     if (!string.IsNullOrEmpty(currentDay.MidnightEventName))
                         return;
                     currentDay.MidnightEventName = name;

@@ -1,7 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-
+using UnityEngine;
 
 namespace PlaythroughLogs
 {
@@ -29,19 +29,25 @@ namespace PlaythroughLogs
 
         public void Start()
         {
-            ExportLogs.SetPlaythroughId();
-            ExportLogs.CreateLogDirectory();
-            ExportLogs.CreateCurrentLogDirectory();
-            ExportLogs.SetLangSettings();
+            ExportLogs.InitializeExporter();
 
         }
 
+        public void Update()
+        {
+            if (Input.GetKeyUp(KeyCode.ScrollLock))
+            {
+                ExportLogs.InstantExport();
+                ExportLogs.InitializeExporter();
+                DataLogger.currentLog.DataOnes.Clear();
+                DataLogger.currentLog.DataTwos.Clear();
+                DataLogger.currentLog.DataThrees.Clear();
+            }
+        }
 
         public void OnApplicationQuit()
         {
-            DataLogger.AddDataToCurrentLog();
-            ExportLogs.SavePlaythroughToJSON();
-            ExportLogs.SaveDataLogsToCSV();
+            ExportLogs.InstantExport();
         }
     }
 

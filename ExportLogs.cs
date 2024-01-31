@@ -39,6 +39,21 @@ namespace PlaythroughLogs
             CurrentLogPath = path;
         }
 
+        internal static void InitializeExporter()
+        {
+            SetPlaythroughId();
+            CreateLogDirectory();
+            CreateCurrentLogDirectory();
+            SetLangSettings();
+        }
+
+        internal static void InstantExport()
+        {
+            DataLogger.AddDataToCurrentLog();
+            SavePlaythroughToJSON();
+            SaveDataLogsToCSV();
+        }
+
         internal static void SetLangSettings()
         {
             string path = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "settings.json");
@@ -227,6 +242,7 @@ namespace PlaythroughLogs
         }
         internal static string CmdToName(CmdType type, LanguageType lang)
         {
+
             if (type == CmdType.OdekakeOdaiba)
             {
                 return "MV";
@@ -235,6 +251,14 @@ namespace PlaythroughLogs
             else if (type == (CmdType)200)
             {
                 return "";
+            }
+            else if (type == CmdType.Darkness_1)
+            {
+                return NgoEx.TenTalk(TenCommentType.Darkness1_Chou001, lang);
+            }
+            else if (type == CmdType.Darkness_2)
+            {
+                return NgoEx.TenTalk(TenCommentType.Darkness2_Chou001, lang);
             }
             else
             {
