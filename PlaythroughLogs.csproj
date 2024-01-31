@@ -24,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\NGOTxtExtender.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,7 +37,9 @@
   <ItemGroup>
     <Compile Include="CommandInfo.cs" />
     <Compile Include="DataInfo.cs" />
+    <Compile Include="DataLogger.cs" />
     <Compile Include="EndingInfo.cs" />
+    <Compile Include="EventLogger.cs" />
     <Compile Include="ResultInfo.cs" />
     <Compile Include="DayInfo.cs" />
     <Compile Include="Initializer.cs" />
@@ -52,6 +55,7 @@
     <Reference Include="BepInEx">
       <HintPath>..\HelloWorld\Libraries\BepInEx.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
     <Reference Include="UniRx">
       <HintPath>..\HelloWorld\Libraries\UniRx.dll</HintPath>
     </Reference>
