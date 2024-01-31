@@ -1,5 +1,8 @@
-﻿namespace PlaythroughLogs
+﻿using System;
+
+namespace PlaythroughLogs
 {
+    [Serializable]
     public class ResultInfo
     {
         public int Followers = 0;
@@ -14,5 +17,8 @@
         public int GamerGirl = 0;
         public int Cinephile = 0;
         public int RabbitHole = 0;
+        public int LoveCounter = 0;
+        public int IgnoreCounter = 0;
+        public int PsycheCounter = 0;
     }
 }

@@ -19,12 +19,14 @@ namespace PlaythroughLogs
                 NgoEvent ngoEvent = __instance.eventQueue.Peek();
 
                 if (ngoEvent.ToString().Contains("Action_")) { return; }
+                if (ngoEvent.ToString().Contains("Ending_")) { return; }
                 if (ngoEvent.ToString().Contains("DayPassing")) { return; }
                 if (ngoEvent.ToString().Contains("Separator")) { return; }
                 if (ngoEvent.ToString().Contains("TimePassing")) { return; }
                 if (ngoEvent.ToString().Contains("_Uzagarami")) { return; }
                 if (ngoEvent.ToString().Contains("_CheckBGM")) { return; }
                 upcomingEvent = ngoEvent;
+                DataLogger.SaveEventToDay();
             }
         }
 
