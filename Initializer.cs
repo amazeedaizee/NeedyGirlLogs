@@ -27,7 +27,16 @@ namespace PlaythroughLogs
 
         public void Start()
         {
-            ///Add some code or whatever
+            ExportLogs.CreateLogDirectory();
+            ExportLogs.SetLangSettings();
+            ExportLogs.SetPlaythroughId();
+        }
+
+
+        public void OnApplicationQuit()
+        {
+            ExportLogs.SavePlaythroughToJSON();
+            ExportLogs.SaveDataLogsToCSV();
         }
     }
 

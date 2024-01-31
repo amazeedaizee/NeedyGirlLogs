@@ -39,9 +39,10 @@ namespace PlaythroughLogs
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EventManager), "Save")]
-        public static void SaveDayToData()
+        public static void SaveDayToData(int day)
         {
             SaveTotalResult();
+            currentDay.Day = day - 1;
             currentData.Days.Add(currentDay);
             currentDay = new DayInfo();
         }
@@ -118,11 +119,12 @@ namespace PlaythroughLogs
         [HarmonyPatch(typeof(EndingManager), nameof(EndingManager.Awake))]
         public static void SaveEndingToDay()
         {
+            int day = SingletonMonoBehaviour<StatusManager>.Instance.GetStatus(StatusType.DayIndex) + 1;
             CommandInfo endingInfo = new CommandInfo();
             endingInfo.DayPart = SingletonMonoBehaviour<StatusManager>.Instance.GetStatus(StatusType.DayPart);
             endingInfo.Ending = SingletonMonoBehaviour<EventManager>.Instance.nowEnding;
             currentDay.Commands.Add(endingInfo);
-            SaveDayToData();
+            SaveDayToData(day);
         }
 
         public static void SaveEventToDay()
