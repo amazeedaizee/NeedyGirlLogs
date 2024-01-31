@@ -2,6 +2,7 @@
 using NGO;
 using ngov3;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace PlaythroughLogs
@@ -59,74 +60,62 @@ namespace PlaythroughLogs
 
         internal static void SaveDataLogsToCSV()
         {
-            LanguageType lang = SetLang != (LanguageType)999 ? SingletonMonoBehaviour<Settings>.Instance.CurrentLanguage.Value : SetLang;
-            string header = $"Event," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Day, lang)}," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Day, lang)}%," +
-                $"Action," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Shortcut_Jine, lang)}," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Follower, lang)}," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Stress, lang)}," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Love, lang)}," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Yami, lang)}," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.RenzokuHaishinCount, lang)} ," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.SNSzizenKokutiBonus, lang)} ," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.GameCountBonus, lang)} ," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.CinePhillCountBonus, lang)} ," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.OkusuriedCounter, lang)}," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.OirokeCounter, lang)}," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.DougaTVShabekuriCountBonus, lang)}," +
-                $"{NgoEx.SystemTextFromTypeString("Harumagedo", lang)}," +
-                $"{NgoEx.ActNameFromType(ActionType.PlayMakeLove, lang)}," +
-                $"{JineDataConverter.GetJineTextFromTypeId(NGO.JineType.Event_Menherafriend_JINE002_Option003)}" +
-                $"{NgoEx.ActNameFromType(ActionType.OkusuriPsyche, lang)}\n";
+
             string dataOne = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log1_{currentId}.csv");
             string dataTwo = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log2_{currentId}.csv");
             string dataThree = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log3_{currentId}.csv");
-            for (int i = 0; i < DataLogger.currentLog.Datas.Count; i++)
-            {
-                var data = DataLogger.currentLog.Datas[i];
-                switch (data.SaveNum)
-                {
-                    case 1:
-                        if (!File.Exists(dataOne))
-                        {
-                            File.AppendAllText(dataOne, header);
-                        }
-                        SaveDayLogsToFile(dataOne, data);
-                        break;
-                    case 2:
-                        if (!File.Exists(dataTwo))
-                        {
-                            File.AppendAllText(dataTwo, header);
-                        }
-                        SaveDayLogsToFile(dataTwo, data);
-                        break;
-                    case 3:
-                        if (!File.Exists(dataThree))
-                        {
-                            File.AppendAllText(dataThree, header);
-                        }
-                        SaveDayLogsToFile(dataThree, data);
-                        break;
-                }
+            SaveDataLogToFile(dataOne, DataLogger.currentLog.DataOnes);
+            SaveDataLogToFile(dataTwo, DataLogger.currentLog.DataTwos);
+            SaveDataLogToFile(dataThree, DataLogger.currentLog.DataThrees);
+        }
 
+        internal static void SaveDataLogToFile(string filePath, List<DataInfo> datas)
+        {
+            LanguageType lang = SetLang != (LanguageType)999 ? SingletonMonoBehaviour<Settings>.Instance.CurrentLanguage.Value : SetLang;
+            string header = $"Event," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Day, lang)}," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Day, lang)}%," +
+                            $"Action," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Shortcut_Jine, lang)}," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Follower, lang)}," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Stress, lang)}," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Love, lang)}," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Yami, lang)}," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.RenzokuHaishinCount, lang)} ," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.SNSzizenKokutiBonus, lang)} ," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.GameCountBonus, lang)} ," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.CinePhillCountBonus, lang)} ," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.OkusuriedCounter, lang)}," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.OirokeCounter, lang)}," +
+                            $"{NgoEx.SystemTextFromType(NGO.SystemTextType.DougaTVShabekuriCountBonus, lang)}," +
+                            $"{NgoEx.SystemTextFromTypeString("Harumagedo", lang)}," +
+                            $"{NgoEx.ActNameFromType(ActionType.PlayMakeLove, lang)}," +
+                            $"{JineDataConverter.GetJineTextFromTypeId(NGO.JineType.Event_Menherafriend_JINE002_Option003)}" +
+                            $"{NgoEx.ActNameFromType(ActionType.OkusuriPsyche, lang)}\n";
+            for (int i = 0; i < datas.Count; i++)
+            {
+                var data = datas[i];
+
+                if (!File.Exists(filePath))
+                {
+                    File.AppendAllText(filePath, header);
+                }
+                if (i > 0)
+                {
+                    File.AppendAllText(filePath, $",,,,,,,,,,,,,,,,,,,\n");
+                }
+                SaveDayLogsToFile(filePath, data);
             }
         }
 
         internal static void SaveDayLogsToFile(string filePath, DataInfo data)
         {
-            bool isEnd = false;
+            bool isEnd;
             LanguageType lang = SetLang != (LanguageType)999 ? SingletonMonoBehaviour<Settings>.Instance.CurrentLanguage.Value : SetLang;
             for (int i = 0; i < data.Days.Count; i++)
             {
                 isEnd = false;
                 var day = data.Days[i];
-                if (day.Commands == null)
-                {
-                    File.AppendAllText(filePath, $",,,,,,,,,,,,,,,,,,,\n");
-                    continue;
-                }
                 if (day.startingStats != null)
                 {
                     File.AppendAllText(filePath, $"{day.DayEventName},{day.Day},," +

@@ -9,6 +9,7 @@ namespace PlaythroughLogs
     [HarmonyPatch]
     internal class DataLogger
     {
+        internal static bool isFirstLoad = true;
         internal static PlaythroughLog currentLog = new PlaythroughLog();
 
         internal static DataInfo currentData = new DataInfo();
@@ -19,16 +20,11 @@ namespace PlaythroughLogs
         [HarmonyPatch(typeof(EventManager), "StartOver")]
         public static void SetDataInfo()
         {
+            NGOPlugin.logger.LogInfo("This is loading!");
             int saveNum = SingletonMonoBehaviour<Settings>.Instance.saveNumber;
-            //if (currentData.SaveNum != saveNum)
-            {
-                AddDataToCurrentLog();
-                SetDataInfo(ref currentData, saveNum);
-            }
-            //else
-            {
-                // SaveStartingResult();
-            }
+            AddDataToCurrentLog();
+            SetDataInfo(saveNum);
+
 
         }
 
@@ -36,38 +32,56 @@ namespace PlaythroughLogs
         {
             if (currentData.Days.Count > 0)
             {
-                currentLog.Datas.Add(currentData);
+                switch (currentData.SaveNum)
+                {
+                    case 1:
+                        currentLog.DataOnes.Add(currentData);
+                        break;
+                    case 2:
+                        currentLog.DataTwos.Add(currentData);
+                        break;
+                    case 3:
+                        currentLog.DataThrees.Add(currentData);
+                        break;
+                }
+
             }
         }
 
-        public static void SetDataInfo(ref DataInfo info, int saveNum)
+        public static void SetDataInfo(int saveNum)
         {
-            info = new DataInfo();
-            info.SaveNum = saveNum;
+            currentData = new DataInfo
+            {
+                SaveNum = saveNum
+            };
+            currentDay = new DayInfo();
             SaveStartingResult();
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(EventManager), "Save")]
+        [HarmonyPatch(typeof(EventManager), nameof(EventManager.Save))]
         public static void SaveDayToData(int day)
         {
-            SaveTotalResult();
+            NGOPlugin.logger.LogInfo("This is saving!");
             currentDay.Day = day - 1;
             if (currentDay.Day > 0)
             {
+                SaveTotalResult();
+
                 currentData.Days.Add(currentDay);
                 currentDay = new DayInfo();
             }
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(EventManager), nameof(EventManager.ExecuteActionConfirmed))]
-        public static void SaveCommandToDay(EventManager __instance, CmdType a, bool isEventCommand)
+        [HarmonyPatch(typeof(EventManager), nameof(EventManager.ApplyStatus))]
+        public static void SaveActionedToDay(CmdType a)
         {
+            if (SingletonMonoBehaviour<Settings>.Instance.saveNumber == 0)
+                return;
             CommandInfo commandInfo = new CommandInfo();
             commandInfo.DayPart = SingletonMonoBehaviour<StatusManager>.Instance.GetStatus(StatusType.DayPart);
             commandInfo.Command = a;
-            commandInfo.SkippedDM = !__instance.checkTuutiCleaned() && !isEventCommand;
             currentDay.Commands.Add(commandInfo);
         }
 
@@ -84,9 +98,9 @@ namespace PlaythroughLogs
             currentData.Days[currentData.Days.Count - 1].Commands[currentData.Days[currentData.Days.Count - 1].Commands.Count - 1].SkippedDM = true;
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Action_HaishinEnd), nameof(Action_HaishinEnd.startEvent), new Type[] { typeof(CancellationToken) })]
-        [HarmonyPatch(MethodType.Enumerator)]
+        //[HarmonyPostfix]
+        //[HarmonyPatch(typeof(Action_HaishinEnd), nameof(Action_HaishinEnd.startEvent), new Type[] { typeof(CancellationToken) })]
+        //[HarmonyPatch(MethodType.Enumerator)]
         public static void SaveStreamToDay()
         {
             CommandInfo commandInfo = new CommandInfo();
@@ -136,12 +150,6 @@ namespace PlaythroughLogs
         {
             LanguageType lang = SingletonMonoBehaviour<Settings>.Instance.CurrentLanguage.Value;
             ResultInfo resultInfo = GetResult();
-            /*
-            if (currentData.Days.Count != 0 && currentData.Days[currentData.Days.Count - 1].Commands != null)
-            {
-                currentData.Days.Add(new DayInfo() { Commands = null });
-            }
-            */
             currentDay.DayEventName = $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Start_Menu_Open, lang)}";
             currentDay.startingStats = resultInfo;
         }
@@ -156,12 +164,11 @@ namespace PlaythroughLogs
         [HarmonyPatch(typeof(EndingManager), nameof(EndingManager.Awake))]
         public static void SaveEndingToDay()
         {
-            int day = SingletonMonoBehaviour<StatusManager>.Instance.GetStatus(StatusType.DayIndex) + 1;
             CommandInfo endingInfo = new CommandInfo();
             endingInfo.DayPart = SingletonMonoBehaviour<StatusManager>.Instance.GetStatus(StatusType.DayPart);
             endingInfo.Ending = SingletonMonoBehaviour<EventManager>.Instance.nowEnding;
             currentDay.Commands.Add(endingInfo);
-            SaveDayToData(day);
+            SaveDayToData(SingletonMonoBehaviour<StatusManager>.Instance.GetStatus(StatusType.DayIndex) + 1);
         }
 
         public static void SaveEventToDay()

@@ -13,11 +13,13 @@ namespace PlaythroughLogs
         public const string pluginName = "Logs";
         public const string pluginVersion = "1.0.0.0";
 
-        public static ManualLogSource logger = new ManualLogSource(pluginGuid);
+        public static ManualLogSource logger;
         public static PluginInfo PInfo { get; private set; }
         public void Awake()
         {
             PInfo = Info;
+
+            logger = Logger;
 
             Logger.LogInfo("Saves actions and events in a day in the form of logs. Logs appear after the game is closed.");
 
