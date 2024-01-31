@@ -1,11 +1,10 @@
-﻿using ngov3;
-using System;
+﻿using System;
 
 namespace PlaythroughLogs
 {
     [Serializable]
     public class LogSettings
     {
-        public LanguageType LogLanguage = (LanguageType)999;
+        public int LogLanguage = 999;
     }
 }

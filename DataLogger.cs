@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using ngov3;
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace PlaythroughLogs
@@ -19,15 +20,24 @@ namespace PlaythroughLogs
         public static void SetDataInfo()
         {
             int saveNum = SingletonMonoBehaviour<Settings>.Instance.saveNumber;
-            if (currentData.SaveNum != saveNum)
+            //if (currentData.SaveNum != saveNum)
             {
-                if (currentData.Days.Count > 0)
-                {
-                    currentLog.Datas.Add(currentData);
-                }
+                AddDataToCurrentLog();
                 SetDataInfo(ref currentData, saveNum);
             }
+            //else
+            {
+                // SaveStartingResult();
+            }
 
+        }
+
+        public static void AddDataToCurrentLog()
+        {
+            if (currentData.Days.Count > 0)
+            {
+                currentLog.Datas.Add(currentData);
+            }
         }
 
         public static void SetDataInfo(ref DataInfo info, int saveNum)
@@ -43,8 +53,11 @@ namespace PlaythroughLogs
         {
             SaveTotalResult();
             currentDay.Day = day - 1;
-            currentData.Days.Add(currentDay);
-            currentDay = new DayInfo();
+            if (currentDay.Day > 0)
+            {
+                currentData.Days.Add(currentDay);
+                currentDay = new DayInfo();
+            }
         }
 
         [HarmonyPrefix]
@@ -59,14 +72,28 @@ namespace PlaythroughLogs
         }
 
         [HarmonyPostfix]
+        [HarmonyPatch(typeof(EventManager), nameof(EventManager.MidokuMushiTweet))]
+        public static void SaveSkippedDM()
+        {
+            if (currentData == null) return;
+            if (currentData.Days == null || currentData.Days.Count == 0)
+                return;
+            if (currentData.Days[currentData.Days.Count - 1].Commands == null
+                || currentData.Days[currentData.Days.Count - 1].Commands.Count == 0)
+                return;
+            currentData.Days[currentData.Days.Count - 1].Commands[currentData.Days[currentData.Days.Count - 1].Commands.Count - 1].SkippedDM = true;
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(Action_HaishinEnd), nameof(Action_HaishinEnd.startEvent), new Type[] { typeof(CancellationToken) })]
-        public static CommandInfo SaveStreamToDay(EventManager __instance)
+        [HarmonyPatch(MethodType.Enumerator)]
+        public static void SaveStreamToDay()
         {
             CommandInfo commandInfo = new CommandInfo();
             commandInfo.DayPart = SingletonMonoBehaviour<StatusManager>.Instance.GetStatus(StatusType.DayPart);
             commandInfo.SkippedDM = SingletonMonoBehaviour<EventManager>.Instance.isThisTurnMidokuMushi;
             commandInfo.Command = SingletonMonoBehaviour<EventManager>.Instance.executingAction;
-            return commandInfo;
+            currentDay.Commands.Add(commandInfo);
         }
 
         public static CommandInfo SaveCommandToDay(CmdType cmdType, bool isSkipDM = false)
@@ -78,25 +105,27 @@ namespace PlaythroughLogs
             return commandInfo;
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(Status_Stress2_Day), nameof(Status_Stress2_Day.startEvent), new Type[] { typeof(CancellationToken) })]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static void SaveStressTwoToDay()
         {
             CommandInfo commandInfo = SaveCommandToDay(CmdType.DarknessS2);
             currentDay.Commands.Add(commandInfo);
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(Event_MV_shuroku), nameof(Event_MV_shuroku.startEvent), new Type[] { typeof(CancellationToken) })]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static void SaveMusicVideoToDay()
         {
             CommandInfo commandInfo = SaveCommandToDay(CmdType.OdekakeOdaiba);
             currentDay.Commands.Add(commandInfo);
         }
 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(Event_Sea), "<startEvent>b__1_1")]
-        [HarmonyPatch(MethodType.Enumerator)]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static void SaveBeachToDay()
         {
             CommandInfo commandInfo = SaveCommandToDay((CmdType)200);
@@ -105,7 +134,15 @@ namespace PlaythroughLogs
 
         public static void SaveStartingResult()
         {
+            LanguageType lang = SingletonMonoBehaviour<Settings>.Instance.CurrentLanguage.Value;
             ResultInfo resultInfo = GetResult();
+            /*
+            if (currentData.Days.Count != 0 && currentData.Days[currentData.Days.Count - 1].Commands != null)
+            {
+                currentData.Days.Add(new DayInfo() { Commands = null });
+            }
+            */
+            currentDay.DayEventName = $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Start_Menu_Open, lang)}";
             currentDay.startingStats = resultInfo;
         }
 
@@ -129,12 +166,17 @@ namespace PlaythroughLogs
 
         public static void SaveEventToDay()
         {
+
             switch (SingletonMonoBehaviour<StatusManager>.Instance.GetStatus(StatusType.DayPart))
             {
                 case 0:
+                    if (!string.IsNullOrEmpty(currentDay.DayEventName))
+                        return;
                     currentDay.DayEventName = EventLogger.upcomingEvent.ToString();
                     break;
                 case 3:
+                    if (!string.IsNullOrEmpty(currentDay.MidnightEventName))
+                        return;
                     currentDay.MidnightEventName = EventLogger.upcomingEvent.ToString();
                     break;
             }

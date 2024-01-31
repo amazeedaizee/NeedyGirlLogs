@@ -35,6 +35,7 @@ namespace PlaythroughLogs
 
         public void OnApplicationQuit()
         {
+            DataLogger.AddDataToCurrentLog();
             ExportLogs.SavePlaythroughToJSON();
             ExportLogs.SaveDataLogsToCSV();
         }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using NGO;
 using ngov3;
 using System;
 using System.IO;
@@ -32,15 +33,16 @@ namespace PlaythroughLogs
             var langSettings = new LogSettings();
             if (!File.Exists(path))
             {
-                var set = JsonConvert.SerializeObject(langSettings);
+                var set = JsonConvert.SerializeObject(langSettings, Formatting.Indented);
                 File.WriteAllText(path, set);
             }
             else
             {
-                langSettings = (LogSettings)JsonConvert.DeserializeObject(path);
-                if (langSettings.LogLanguage <= LanguageType.SP)
+                var lang = File.ReadAllText(path);
+                langSettings = JsonConvert.DeserializeObject<LogSettings>(lang);
+                if (langSettings.LogLanguage <= (int)LanguageType.SP)
                 {
-                    SetLang = langSettings.LogLanguage;
+                    SetLang = (LanguageType)langSettings.LogLanguage;
                 }
             }
         }
@@ -62,9 +64,9 @@ namespace PlaythroughLogs
                 $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Day, lang)}," +
                 $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Day, lang)}%," +
                 $"Action," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.JINE_Kidoku, lang)}," +
-                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Stress, lang)}," +
+                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Shortcut_Jine, lang)}," +
                 $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Follower, lang)}," +
+                $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Stress, lang)}," +
                 $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Love, lang)}," +
                 $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Yami, lang)}," +
                 $"{NgoEx.SystemTextFromType(NGO.SystemTextType.RenzokuHaishinCount, lang)} ," +
@@ -77,7 +79,7 @@ namespace PlaythroughLogs
                 $"{NgoEx.SystemTextFromTypeString("Harumagedo", lang)}," +
                 $"{NgoEx.ActNameFromType(ActionType.PlayMakeLove, lang)}," +
                 $"{JineDataConverter.GetJineTextFromTypeId(NGO.JineType.Event_Menherafriend_JINE002_Option003)}" +
-                $"{NgoEx.ActNameFromType(ActionType.OkusuriPsyche, lang)}";
+                $"{NgoEx.ActNameFromType(ActionType.OkusuriPsyche, lang)}\n";
             string dataOne = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log1_{currentId}.csv");
             string dataTwo = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log2_{currentId}.csv");
             string dataThree = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log3_{currentId}.csv");
@@ -90,7 +92,6 @@ namespace PlaythroughLogs
                         if (!File.Exists(dataOne))
                         {
                             File.AppendAllText(dataOne, header);
-                            File.AppendAllText(dataOne, "Data" + data.SaveNum.ToString());
                         }
                         SaveDayLogsToFile(dataOne, data);
                         break;
@@ -98,7 +99,6 @@ namespace PlaythroughLogs
                         if (!File.Exists(dataTwo))
                         {
                             File.AppendAllText(dataTwo, header);
-                            File.AppendAllText(dataTwo, "Data" + data.SaveNum.ToString());
                         }
                         SaveDayLogsToFile(dataTwo, data);
                         break;
@@ -106,7 +106,6 @@ namespace PlaythroughLogs
                         if (!File.Exists(dataThree))
                         {
                             File.AppendAllText(dataThree, header);
-                            File.AppendAllText(dataThree, "Data" + data.SaveNum.ToString());
                         }
                         SaveDayLogsToFile(dataThree, data);
                         break;
@@ -117,41 +116,49 @@ namespace PlaythroughLogs
 
         internal static void SaveDayLogsToFile(string filePath, DataInfo data)
         {
+            bool isEnd = false;
             LanguageType lang = SetLang != (LanguageType)999 ? SingletonMonoBehaviour<Settings>.Instance.CurrentLanguage.Value : SetLang;
             for (int i = 0; i < data.Days.Count; i++)
             {
+                isEnd = false;
                 var day = data.Days[i];
+                if (day.Commands == null)
+                {
+                    File.AppendAllText(filePath, $",,,,,,,,,,,,,,,,,,,\n");
+                    continue;
+                }
                 if (day.startingStats != null)
                 {
-                    File.AppendAllText(filePath, $"{day.DayEventName},{day.Day},{NgoEx.DayText(0, lang)}," +
+                    File.AppendAllText(filePath, $"{day.DayEventName},{day.Day},," +
                              $"," +
                              $"," +
-                             $"{day.endingStats.Followers}," +
-                             $"{day.endingStats.Stress}," +
-                             $"{day.endingStats.Affection}," +
-                             $"{day.endingStats.Darkness}," +
-                             $"{day.endingStats.StreamStreak}," +
-                             $"{day.endingStats.PreAlertBonus}," +
-                             $"{day.endingStats.GamerGirl}," +
-                             $"{day.endingStats.Cinephile}," +
-                             $"{day.endingStats.Impact}," +
-                             $"{day.endingStats.Experience}," +
-                             $"{day.endingStats.Communication}, " +
-                             $"{day.endingStats.RabbitHole}, " +
-                             $"{day.endingStats.LoveCounter}," +
-                             $"{day.endingStats.IgnoreCounter}," +
-                             $"{day.endingStats.PsycheCounter}");
+                             $"{day.startingStats.Followers}," +
+                             $"{day.startingStats.Stress}," +
+                             $"{day.startingStats.Affection}," +
+                             $"{day.startingStats.Darkness}," +
+                             $"{day.startingStats.StreamStreak}," +
+                             $"{day.startingStats.PreAlertBonus}," +
+                             $"{day.startingStats.GamerGirl}," +
+                             $"{day.startingStats.Cinephile}," +
+                             $"{day.startingStats.Impact}," +
+                             $"{day.startingStats.Experience}," +
+                             $"{day.startingStats.Communication}, " +
+                             $"{day.startingStats.RabbitHole}, " +
+                             $"{day.startingStats.LoveCounter}," +
+                             $"{day.startingStats.IgnoreCounter}," +
+                             $"{day.startingStats.PsycheCounter}\n");
                 }
                 else
                 {
-                    File.AppendAllText(filePath, $"{day.DayEventName},{day.Day},{NgoEx.DayText(0, lang)},,,,,,,,,,,,,,,,,");
+                    File.AppendAllText(filePath, $"{day.DayEventName},{day.Day},{NgoEx.TimeText(0, lang)},,,,,,,,,,,,,,,,,\n");
                 }
                 for (int j = 0; j < day.Commands.Count; j++)
                 {
                     var cmd = day.Commands[j];
                     if (cmd.Ending != NGO.EndingType.Ending_None)
                     {
-                        File.AppendAllText(filePath, $"{NgoEx.EndingFromType(cmd.Ending)},{day.Day},{NgoEx.DayText(0, lang)}," +
+                        isEnd = true;
+                        File.AppendAllText(filePath, $"Ending: {GetEndName(cmd.Ending, lang)},{day.Day},{NgoEx.TimeText(0, lang)}," +
                                                          $"," +
                          $"," +
                          $"{day.endingStats.Followers}," +
@@ -168,21 +175,21 @@ namespace PlaythroughLogs
                          $"{day.endingStats.RabbitHole}, " +
                          $"{day.endingStats.LoveCounter}," +
                          $"{day.endingStats.IgnoreCounter}," +
-                         $"{day.endingStats.PsycheCounter}");
-                        return;
+                         $"{day.endingStats.PsycheCounter}\n");
+                        break;
                     }
                     else
                     {
                         var param = CmdToParam(cmd.Command);
-                        File.AppendAllText(filePath, $",,{NgoEx.DayText(cmd.DayPart, lang)}," +
+                        File.AppendAllText(filePath, $",,{NgoEx.TimeText(cmd.DayPart, lang)}," +
                                                      $"{CmdToName(cmd.Command, lang)}," +
                                                      $"{!cmd.SkippedDM}," +
                                                      $"{param.FollowerDelta}," +
-                                                     $"{param.StressDelta}{(cmd.SkippedDM ? " + 5" : "")}," +
-                                                     $"{param.FavorDelta}{(cmd.SkippedDM ? " - 4" : "")}," +
+                                                     $"{param.StressDelta}{(cmd.SkippedDM ? " (+5)" : "")}," +
+                                                     $"{param.FavorDelta}{(cmd.SkippedDM ? " (-4)" : "")}," +
                                                      $"{param.YamiDelta}," +
                                                      $"{(param.ParentAct == "Haishin" ? 1 : 0)}," +
-                                                     $"{param.SNS}," +
+                                                     $"{param.SNS > 0}," +
                                                      $"{param.GameCount}," +
                                                      $"{param.CinePhillCount}," +
                                                      $"{param.OkusuriCount}," +
@@ -191,28 +198,30 @@ namespace PlaythroughLogs
                                                      $"{param.Harumagedo}, " +
                                                      $"{(param.ParentAct == "PlayMakeLove" ? 1 : 0)}," +
                                                      $"{(cmd.SkippedDM ? 1 : 0)}," +
-                                                     $"{(param.ParentAct == "OkusuriPsyche" ? 1 : 0)}");
+                                                     $"{(param.ParentAct == "OkusuriPsyche" ? 1 : 0)}\n");
                     }
                 }
-                File.AppendAllText(filePath, $"{day.MidnightEventName},{day.Day},," +
-                                             $"," +
-                                             $"," +
-                                             $"{day.endingStats.Followers}," +
-                                             $"{day.endingStats.Stress}," +
-                                             $"{day.endingStats.Affection}," +
-                                             $"{day.endingStats.Darkness}," +
-                                             $"{day.endingStats.StreamStreak}," +
-                                             $"{day.endingStats.PreAlertBonus}," +
-                                             $"{day.endingStats.GamerGirl}," +
-                                             $"{day.endingStats.Cinephile}," +
-                                             $"{day.endingStats.Impact}," +
-                                             $"{day.endingStats.Experience}," +
-                                             $"{day.endingStats.Communication}, " +
-                                             $"{day.endingStats.RabbitHole}, " +
-                                             $"{day.endingStats.LoveCounter}," +
-                                             $"{day.endingStats.IgnoreCounter}," +
-                                             $"{day.endingStats.PsycheCounter}");
-
+                if (!isEnd)
+                {
+                    File.AppendAllText(filePath, $"{day.MidnightEventName},{day.Day},," +
+                             $"," +
+                             $"," +
+                             $"{day.endingStats.Followers}," +
+                             $"{day.endingStats.Stress}," +
+                             $"{day.endingStats.Affection}," +
+                             $"{day.endingStats.Darkness}," +
+                             $"{day.endingStats.StreamStreak}," +
+                             $"{day.endingStats.PreAlertBonus}," +
+                             $"{day.endingStats.GamerGirl}," +
+                             $"{day.endingStats.Cinephile}," +
+                             $"{day.endingStats.Impact}," +
+                             $"{day.endingStats.Experience}," +
+                             $"{day.endingStats.Communication}, " +
+                             $"{day.endingStats.RabbitHole}, " +
+                             $"{day.endingStats.LoveCounter}," +
+                             $"{day.endingStats.IgnoreCounter}," +
+                             $"{day.endingStats.PsycheCounter} \n");
+                }
             }
         }
         internal static string CmdToName(CmdType type, LanguageType lang)
@@ -256,5 +265,34 @@ namespace PlaythroughLogs
                 return NgoEx.CmdFromType(type);
             }
         }
+
+        private static string GetEndName(EndingType end, LanguageType lang)
+        {
+            EndingMaster.Param param = NgoEx.EndingFromType(end);
+            switch (lang)
+            {
+                case LanguageType.JP:
+                    return param.EndingNameJp;
+                case LanguageType.CN:
+                    return param.EndingNameCn;
+                case LanguageType.TW:
+                    return param.EndingNameTw;
+                case LanguageType.KO:
+                    return param.EndingNameKo;
+                case LanguageType.VN:
+                    return param.EndingNameVn;
+                case LanguageType.FR:
+                    return param.EndingNameFr;
+                case LanguageType.IT:
+                    return param.EndingNameIt;
+                case LanguageType.GE:
+                    return param.EndingNameGe;
+                case LanguageType.SP:
+                    return param.EndingNameSp;
+                default:
+                    return param.EndingNameEn;
+            }
+        }
     }
 }
+

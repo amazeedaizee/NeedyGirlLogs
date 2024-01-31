@@ -11,7 +11,7 @@ namespace PlaythroughLogs
         public int Day = 0;
         public ResultInfo startingStats = null;
         public ResultInfo endingStats;
-        public List<CommandInfo> Commands;
+        public List<CommandInfo> Commands = new List<CommandInfo>();
 
     }
 }
