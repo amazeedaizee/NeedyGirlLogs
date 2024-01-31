@@ -18,7 +18,10 @@ namespace PlaythroughLogs
             {
                 NgoEvent ngoEvent = __instance.eventQueue.Peek();
 
+                if (ngoEvent.ToString().Contains("LineWeekDay")) { return; }
+                if (ngoEvent.ToString().Contains("BlurWatchingSp")) { return; }
                 if (ngoEvent.ToString().Contains("Action_")) { return; }
+                if (ngoEvent.ToString().Contains("ChipGet_")) { return; }
                 if (ngoEvent.ToString().Contains("Ending_")) { return; }
                 if (ngoEvent.ToString().Contains("DayPassing")) { return; }
                 if (ngoEvent.ToString().Contains("Separator")) { return; }

@@ -148,9 +148,8 @@ namespace PlaythroughLogs
 
         public static void SaveStartingResult()
         {
-            LanguageType lang = SingletonMonoBehaviour<Settings>.Instance.CurrentLanguage.Value;
+
             ResultInfo resultInfo = GetResult();
-            currentDay.DayEventName = $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Start_Menu_Open, lang)}";
             currentDay.startingStats = resultInfo;
         }
 
@@ -173,18 +172,18 @@ namespace PlaythroughLogs
 
         public static void SaveEventToDay()
         {
-
+            var name = EventLogger.upcomingEvent.ToString().Replace("ngov3.", "");
             switch (SingletonMonoBehaviour<StatusManager>.Instance.GetStatus(StatusType.DayPart))
             {
                 case 0:
                     if (!string.IsNullOrEmpty(currentDay.DayEventName))
                         return;
-                    currentDay.DayEventName = EventLogger.upcomingEvent.ToString();
+                    currentDay.DayEventName = name;
                     break;
-                case 3:
+                case 2:
                     if (!string.IsNullOrEmpty(currentDay.MidnightEventName))
                         return;
-                    currentDay.MidnightEventName = EventLogger.upcomingEvent.ToString();
+                    currentDay.MidnightEventName = name;
                     break;
             }
         }

@@ -31,7 +31,7 @@ namespace PlaythroughLogs
 
         internal static void CreateCurrentLogDirectory()
         {
-            string path = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log_{currentId}.ame");
+            string path = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log_{currentId}");
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
@@ -113,7 +113,8 @@ namespace PlaythroughLogs
                 }
                 if (i > 0)
                 {
-                    File.AppendAllText(filePath, $",,,,,,,,,,,,,,,,,,,\n");
+                    var start = $"{NgoEx.SystemTextFromType(NGO.SystemTextType.Start_Menu_Open, lang)}";
+                    File.AppendAllText(filePath, $"[{start}]***************************************************************************************************************\n");
                 }
                 SaveDayLogsToFile(filePath, data);
             }
