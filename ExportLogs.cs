@@ -12,6 +12,7 @@ namespace PlaythroughLogs
         internal static LanguageType SetLang = (LanguageType)999;
 
         internal static string LogFolderPath;
+        internal static string CurrentLogPath;
 
         internal static string currentId;
 
@@ -26,6 +27,16 @@ namespace PlaythroughLogs
                 Directory.CreateDirectory(path);
             }
             LogFolderPath = path;
+        }
+
+        internal static void CreateCurrentLogDirectory()
+        {
+            string path = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log_{currentId}.ame");
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            CurrentLogPath = path;
         }
 
         internal static void SetLangSettings()
@@ -53,7 +64,7 @@ namespace PlaythroughLogs
         }
         internal static void SavePlaythroughToJSON()
         {
-            string file = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log_{currentId}.ame");
+            string file = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", CurrentLogPath, $"Log_{currentId}.ame");
             string json = JsonConvert.SerializeObject(DataLogger.currentLog, Formatting.Indented);
             File.WriteAllText(file, json);
         }
@@ -61,9 +72,9 @@ namespace PlaythroughLogs
         internal static void SaveDataLogsToCSV()
         {
 
-            string dataOne = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log1_{currentId}.csv");
-            string dataTwo = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log2_{currentId}.csv");
-            string dataThree = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", $"Log3_{currentId}.csv");
+            string dataOne = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", CurrentLogPath, $"Log1_{currentId}.csv");
+            string dataTwo = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", CurrentLogPath, $"Log2_{currentId}.csv");
+            string dataThree = Path.Combine(Path.GetDirectoryName(NGOPlugin.PInfo.Location), "Logs", CurrentLogPath, $"Log3_{currentId}.csv");
             SaveDataLogToFile(dataOne, DataLogger.currentLog.DataOnes);
             SaveDataLogToFile(dataTwo, DataLogger.currentLog.DataTwos);
             SaveDataLogToFile(dataThree, DataLogger.currentLog.DataThrees);

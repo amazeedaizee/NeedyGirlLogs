@@ -29,9 +29,11 @@ namespace PlaythroughLogs
 
         public void Start()
         {
-            ExportLogs.CreateLogDirectory();
-            ExportLogs.SetLangSettings();
             ExportLogs.SetPlaythroughId();
+            ExportLogs.CreateLogDirectory();
+            ExportLogs.CreateCurrentLogDirectory();
+            ExportLogs.SetLangSettings();
+
         }
 
 
