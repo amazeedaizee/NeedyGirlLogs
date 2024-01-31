@@ -67,7 +67,7 @@ namespace PlaythroughLogs
             {
                 var lang = File.ReadAllText(path);
                 langSettings = JsonConvert.DeserializeObject<LogSettings>(lang);
-                if (langSettings.LogLanguage <= (int)LanguageType.SP)
+                if (langSettings.LogLanguage <= (int)LanguageType.SP && langSettings.LogLanguage > -1)
                 {
                     SetLang = (LanguageType)langSettings.LogLanguage;
                 }
