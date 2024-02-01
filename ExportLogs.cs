@@ -116,7 +116,7 @@ namespace PlaythroughLogs
                             $"{NgoEx.SystemTextFromType(NGO.SystemTextType.DougaTVShabekuriCountBonus, lang)}," +
                             $"{NgoEx.SystemTextFromTypeString("Harumagedo", lang)}," +
                             $"{NgoEx.ActNameFromType(ActionType.PlayMakeLove, lang)}," +
-                            $"{JineDataConverter.GetJineTextFromTypeId(NGO.JineType.Event_Menherafriend_JINE002_Option003)}" +
+                            $"{JineDataConverter.GetJineTextFromTypeId(NGO.JineType.Event_Menherafriend_JINE002_Option003)}," +
                             $"{NgoEx.ActNameFromType(ActionType.OkusuriPsyche, lang)}\n";
             for (int i = 0; i < datas.Count; i++)
             {
