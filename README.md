@@ -15,7 +15,7 @@ To force export logs, use the **Scroll Lock** Key. In this case, actions and eve
 
 ## Change Log Language
 
-This mod supports multiple languages. The language the mod uses is automatically set based on the current language of the game, however it is possible to change what language the logs will save as through the **settings.json** file.
+This mod supports multiple languages. You can change what language the logs will save as through the **settings.json** file.
 
 Here are the numbers to use when editing the **settings.json**:
 
