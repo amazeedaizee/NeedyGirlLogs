@@ -3,6 +3,8 @@
 A simple mod that tracks all actions and events during a single playthrough and saves them in a CSV file, one per save.
 You can find these files in the Logs folder, located in the same place as the main mod folder.
 
+### Note: You must have BepInEx pre-configured and enabled with the game to use this mod.
+
 ## Overview
 
 Logs will only save completed days or days that have lead to an ending.
@@ -33,3 +35,8 @@ Any other value will set the language to the default (based on the current langu
 -----
 
 Mod uses the [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) library, to export the .ame file (use is TBD!).
+
+
+This mod is fan-made and is not associated with xemono and WSS Playground. All properties belong to their respective owners.
+
+Haven't downloaded Needy Streamer Overload yet? Get it here: https://store.steampowered.com/app/1451940/NEEDY_STREAMER_OVERLOAD/
