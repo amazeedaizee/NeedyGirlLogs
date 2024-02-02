@@ -9,7 +9,7 @@ Logs will only save completed days or days that have lead to an ending.
 
 Logs will automatically export to the Logs folder after the game is closed. 
 
-To force export logs, use the **Scroll Lock** Key. When saving logs this way, a brand new log will be exported after the game closes or when the **Scroll Lock** key is pressed again.
+To force export logs, use the **Scroll Lock** Key. In this case, actions and events will be saved to a new log separate from the previous export.
 
 ## Change Log Language
 
