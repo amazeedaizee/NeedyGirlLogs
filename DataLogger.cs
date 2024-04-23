@@ -66,6 +66,10 @@ namespace PlaythroughLogs
             currentDay.Day = day - 1;
             if (currentDay.Day > 0)
             {
+                if (currentDay.Day > 30)
+                {
+                    currentDay.Day = 30;
+                }
                 SaveTotalResult();
 
                 currentData.Days.Add(currentDay);
